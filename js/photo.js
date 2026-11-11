@@ -91,6 +91,43 @@ export function measure(landmarks, w, h) {
   };
 }
 
+// 髪の生え際をさがす：おでこの肌の色から上へたどり、髪の色に変わる位置（顔認識の点には生え際がないため）
+// 前髪でおでこが隠れている・はっきりしないときは null（その質問は自分で答えてもらう）
+function findHairline(source, P, w, h) {
+  try {
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const c = cv.getContext('2d', { willReadFrequently: true });
+    c.drawImage(source, 0, 0, w, h);
+    const faceLen = d(P[10], P[152]);
+    const top = Math.max(0, Math.round(P[10].y - faceLen * 0.45));
+    const img = c.getImageData(0, 0, w, h).data;
+    const px = (x, y) => { const i = (Math.round(y) * w + Math.round(x)) * 4; return [img[i], img[i + 1], img[i + 2]]; };
+    const avg = (x, y, r = 3) => { const s = [0, 0, 0]; let n = 0; for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const v = px(x + dx, y + dy); s[0] += v[0]; s[1] += v[1]; s[2] += v[2]; n++; } return s.map((v) => v / n); };
+    // おでこの肌の色（眉間の少し上と、点10の少し下）
+    const ref = avg(P[151].x, P[151].y, 4).map((v, i) => (v + avg(P[9].x, (P[9].y + P[151].y) / 2, 4)[i]) / 2);
+    const lum = (c3) => 0.299 * c3[0] + 0.587 * c3[1] + 0.114 * c3[2];
+    const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    const ys = [];
+    for (const k of [-0.12, 0, 0.12]) {                      // まん中と左右の3本でさがす
+      const x = P[10].x + (P[454].x - P[234].x) * k;
+      let run = 0; let found = null;
+      for (let y = P[151].y; y > top; y -= 1) {
+        const v = avg(x, y, 1);
+        const hair = dist(v, ref) > 55 && lum(v) < lum(ref) - 25;
+        run = hair ? run + 1 : 0;
+        if (run >= 4) { found = y + 4; break; }
+      }
+      if (found !== null) ys.push(found);
+    }
+    if (ys.length < 2) return null;
+    ys.sort((a, b) => a - b);
+    const y = ys[Math.floor(ys.length / 2)];
+    if (y > P[10].y + faceLen * 0.02) return null;            // 点10より下で見つかった＝前髪がかかっている
+    return y;
+  } catch { return null; }
+}
+
 // 画像（img / canvas / video）を調べる
 // → { ok, reason, measures, pose, landmarks }
 export async function analyze(source) {
@@ -102,6 +139,17 @@ export async function analyze(source) {
   const landmarks = res.faceLandmarks[0];
   const ps = pose(res.facialTransformationMatrixes && res.facialTransformationMatrixes[0]);
   const measures = measure(landmarks, w, h);
+  // 生え際が見つかったら、おでこの広さと顔の中央の長さ（顔を3つに分ける考え方）も測る
+  const P = landmarks.map((p) => ({ x: p.x * w, y: p.y * h }));
+  const hair = findHairline(source, P, w, h);
+  if (hair !== null) {
+    const brow = (P[107].y + P[336].y + P[105].y + P[334].y) / 4;
+    const full = P[152].y - hair;
+    measures.forehead3 = (brow - hair) / full;
+    measures.midface3 = (P[2].y - brow) / full;
+  }
+  // ほおの肉づき：口の高さの顔の幅 ÷ ほお骨の幅（ふっくらしているほど1に近い）
+  measures.cheekFull = d(P[136], P[365]) / d(P[234], P[454]);
   let reason = null;
   if (ps && (Math.abs(ps.yaw) > 10)) reason = 'yaw';
   else if (ps && Math.abs(ps.pitch) > 14) reason = 'pitch';

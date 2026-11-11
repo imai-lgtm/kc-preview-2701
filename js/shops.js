@@ -6,6 +6,8 @@
 //   menu   ：代表的なメニューと料金（誌面の表記どおり）
 //   coupon ：くれよんのクーポン（あれば）
 //   tipNote：コツとのつながり（分野ごと。「このコツを相談するなら」の一文）
+//   url    ：お店のホームページ（なければ ''。ボタンが出ない）
+//   photo  ：誌面で使った写真を1枚（site/img/shops/ に置く。なければ ''）、photoAlt：写真の説明
 export const SHOPS = [];
 
 // 見本の店は shops-demo.js（手元と確認用URLで ?demo=1 のときだけ読む。本番に置くときは shops-demo.js を消す）

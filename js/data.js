@@ -13,22 +13,22 @@
 export const QUESTIONS = [
   { id: 'q01', axis: 'A', w: 1.3, title: '顔の形（たてと横のバランス）', hint: '前髪を上げて、正面から見たときの印象で',
     photo: 'faceRatio', param: 'faceLen',
-    options: [{ label: '丸み・短め', v: -1, val: -1 }, { label: '卵形', v: 0, val: 0 }, { label: '面長（たて長）', v: 1, val: 1 }] },
+    options: [{ label: '丸み・短め', v: -1, val: -1 }, { label: '卵形', v: -0.3, val: -0.25 }, { label: 'ややたて長', v: 0.35, val: 0.45 }, { label: '面長（たて長）', v: 1, val: 1 }] },
   { id: 'q02', axis: 'B', w: 1.3, title: 'フェイスライン（耳の下からあご）', hint: 'あごのまわりを指でなぞって',
     photo: 'jawAngle', param: 'jaw',
-    options: [{ label: '丸くふっくら', v: -1, val: -1 }, { label: 'なだらか', v: 0, val: 0 }, { label: '骨っぽくシャープ', v: 1, val: 1 }] },
+    options: [{ label: '丸くふっくら', v: -1, val: -1 }, { label: 'なだらか', v: -0.35, val: -0.35 }, { label: 'ややすっきり', v: 0.35, val: 0.35 }, { label: '骨っぽくシャープ', v: 1, val: 1 }] },
   { id: 'q03', axis: 'A', w: 1.2, title: '顔の中央（眉頭〜鼻の下）の長さ', hint: '顔全体とくらべて',
     photo: null, param: 'mid',      // 写真では安定して測れなかった（dev/calib）
     options: [{ label: '短め', v: -1, val: -1 }, { label: 'ふつう', v: 0, val: 0 }, { label: '長め', v: 1, val: 1 }] },
   { id: 'q04', axis: 'B', w: 1.2, title: '目の形', hint: '力を抜いて、まっすぐ前を見たとき',
     photo: 'eyeShape', param: 'eyeShape',
-    options: [{ label: 'まんまる', v: -1, val: -1 }, { label: 'アーモンド形', v: 0, val: 0 }, { label: '切れ長', v: 1, val: 1 }] },
+    options: [{ label: 'まんまる', v: -1, val: -1 }, { label: '丸みのあるアーモンド形', v: -0.35, val: -0.4 }, { label: 'アーモンド形', v: 0.35, val: 0.3 }, { label: '切れ長', v: 1, val: 1 }] },
   { id: 'q05', axis: 'A', w: 1.0, title: '目の大きさ（顔の幅とくらべて）', hint: '黒目の大きさより、目の横幅で',
     photo: 'eyeSize', param: 'eyeSize',
     options: [{ label: '大きめ', v: -1, val: 1 }, { label: 'ふつう', v: 0, val: 0 }, { label: '小さめ・細め', v: 1, val: -1 }] },
   { id: 'q06', axis: 'B', w: 0.9, title: '何もしていない、そのままの眉の形', hint: '描いている形ではなく、生えている形で',
     photo: null, param: 'brow',     // 写真では安定して測れなかった（dev/calib）
-    options: [{ label: 'ふんわりアーチ', v: -1, val: -1 }, { label: 'ゆるやか', v: 0, val: 0 }, { label: 'まっすぐ・角がある', v: 1, val: 1 }] },
+    options: [{ label: 'ふんわりアーチ', v: -1, val: -1 }, { label: 'ゆるやかなカーブ', v: -0.35, val: -0.4 }, { label: 'ほぼまっすぐ', v: 0.35, val: 0.4 }, { label: 'まっすぐ・角がある', v: 1, val: 1 }] },
   { id: 'q07', axis: 'A', w: 1.0, title: 'あご（下くちびるの下〜あご先）の長さ', hint: '口を閉じて、正面から',
     photo: 'chin', param: 'chin',
     options: [{ label: '短め', v: -1, val: -1 }, { label: 'ふつう', v: 0, val: 0 }, { label: '長め', v: 1, val: 1 }] },
@@ -42,7 +42,7 @@ export const QUESTIONS = [
     photo: null, param: 'cheek',
     options: [{ label: 'ふっくら丸い', v: -1, val: -1 }, { label: 'ふつう', v: 0, val: 0 }, { label: 'すっきり・骨感', v: 1, val: 1 }] },
   { id: 'q11', axis: 'A', w: 0.8, title: 'おでこ（髪の生え際〜眉）の広さ', hint: '前髪を上げて',
-    photo: null, param: 'forehead',
+    photo: 'forehead3', param: 'forehead',   // 写真の色から生え際をさがして測る（前髪で隠れていると測らない）
     options: [{ label: '広め', v: -1, val: 1 }, { label: 'ふつう', v: 0, val: 0 }, { label: 'せまめ', v: 1, val: -1 }] },
   { id: 'q12', axis: 'B', w: 0.8, title: '鼻先の形', hint: '正面と、少し横からも見て',
     photo: null, param: 'noseTip',
@@ -213,13 +213,14 @@ export const TIPS = {
 //   基準値：確認用の顔写真16人（AIで作った実在しない人物）を測り、3等分になる区切りを少し広げて決めた仮の値。
 //   公開前にスタッフの写真で合わせ直す（tools/calib.mjs、dev/calib/README.md）
 export const PHOTO_RULES = {
-  faceRatio: { lo: 1.17, hi: 1.22, dir: 1 },    // 顔の長さ（おでこ上〜あご）÷ 顔の幅
-  jawAngle: { lo: 135, hi: 141, dir: -1 },      // えらの角度（大きいほど丸い → 0番目）
-  eyeShape: { lo: 0.345, hi: 0.385, dir: -1 },  // 目の高さ÷目の幅（大きいほどまんまる → 0番目）
+  faceRatio: { lo: 1.17, hi: 1.22, cuts: [1.16, 1.19, 1.23], dir: 1 },    // 顔の長さ（おでこ上〜あご）÷ 顔の幅（4択は cuts で4つに分ける）
+  jawAngle: { lo: 135, hi: 141, cuts: [136.3, 138.8, 143.9], dir: -1 },      // えらの角度（大きいほど丸い → 0番目）
+  eyeShape: { lo: 0.345, hi: 0.385, cuts: [0.335, 0.378, 0.396], dir: -1 },  // 目の高さ÷目の幅（大きいほどまんまる → 0番目）
   eyeSize: { lo: 0.184, hi: 0.194, dir: -1 },   // 目の幅 ÷ 顔の幅（大きいほど大きめ → 0番目）
   chin: { lo: 0.18, hi: 0.20, dir: 1 },         // 下くちびるの下〜あご ÷ 顔の長さ
   lips: { lo: 0.30, hi: 0.355, dir: -1 },       // くちびるの厚み ÷ 口の幅（大きいほど厚め → 0番目）
   noseLen: { lo: 0.278, hi: 0.295, dir: 1 },    // 目の高さ〜小鼻の下 ÷ 顔の長さ
+  forehead3: { lo: 0.238, hi: 0.268, dir: -1 }, // 生え際〜眉 ÷ 生え際〜あご（大きいほど広め → 0番目）
 };
 // 質問ごとの「プロのひとこと」（見分け方のコツ）。顔を縦に3等分・横に5等分して見る、似顔絵や美容で使われる目安にもとづく
 export const PRO = {

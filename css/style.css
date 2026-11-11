@@ -52,7 +52,7 @@ img, svg { display: block; max-width: 100%; }
 /* ---------- 上のバー ---------- */
 .bar {
   position: sticky; top: 0; z-index: 20;
-  display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+  display: grid; grid-template-columns: 96px 1fr 96px; align-items: center;
   height: 52px; padding: 0 6px;
   background: rgba(251, 248, 245, 0.88);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -66,7 +66,7 @@ img, svg { display: block; max-width: 100%; }
   display: grid; place-items: center; cursor: pointer;
 }
 .bar-back { grid-column: 1; }
-.bar-sound { grid-column: 3; }
+.bar-right { grid-column: 3; display: flex; justify-content: flex-end; align-items: center; }
 .bar-back svg, .bar-sound svg { width: 22px; height: 22px; fill: none; stroke: var(--ink2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .bar-sound .spk { fill: var(--ink2); stroke: none; }
 .bar-sound .mute { display: none; }
@@ -208,7 +208,7 @@ img, svg { display: block; max-width: 100%; }
 .cam-dots i { position: absolute; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px 3px rgba(216, 195, 160, 0.9); animation: twinkle 0.9s ease both; animation-delay: var(--d); }
 @keyframes twinkle { from { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.5); } to { opacity: 0.9; transform: scale(1); } }
 .cam-status { position: absolute; left: 12px; right: 12px; bottom: 12px; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(30, 24, 25, 0.62); color: #fff; font-size: 13px; text-align: center; line-height: 1.6; }
-.cam-actions { display: grid; place-items: center; margin: 18px 0 4px; }
+
 .shutter { width: 76px; height: 76px; border-radius: 50%; border: 3px solid var(--ink); background: var(--card); padding: 5px; cursor: pointer; }
 .shutter span { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--ink); transition: transform 0.15s; }
 .shutter:active span { transform: scale(0.9); }
@@ -512,3 +512,67 @@ p, dd, .tip-why, .pro-text { text-wrap: pretty; }
 .mini-save { min-height: 40px; padding: 8px 16px; }
 .sheet-close { width: 44px; height: 44px; }
 .feature-body b .ph { display: inline-block; }
+/* お店：誌面の写真・ホームページ */
+.shopcard-photo { position: relative; margin: 14px 0 0; border-radius: 14px; overflow: hidden; background: #F3ECE6; }
+.shopcard-photo img { width: 100%; height: 170px; object-fit: cover; }
+.shopcard-photo figcaption { position: absolute; right: 8px; bottom: 8px; padding: 1px 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.88); font-size: 10.5px; color: var(--ink2); }
+.shopcard-actions.three { grid-template-columns: 1fr 1fr; }
+.shopcard-actions.three .hp { grid-column: 1 / 3; background: var(--ink); color: #FBF3EC; border-color: var(--ink); }
+/* 右上の「使い方」 */
+.bar-help { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 48px; height: 46px; border: 0; background: none; cursor: pointer; color: var(--ink2); padding: 0; }
+.bar-help svg { width: 21px; height: 21px; fill: none; stroke: var(--ink2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bar-help span { font-size: 9.5px; line-height: 1.1; margin-top: 1px; letter-spacing: 0.04em; }
+.bar-back { justify-self: start; }
+
+/* トップ：診断をはじめるのすぐ上の「わかること」 */
+.cta-wrap { margin-top: -86px; }
+.know { position: relative; z-index: 2; list-style: none; margin: 0 0 14px; padding: 12px 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  border-radius: 20px; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 0 var(--line), 0 12px 28px rgba(120, 90, 70, 0.1); }
+.know li { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.know li + li { border-left: 1px dashed var(--line); }
+.know img { height: 40px; width: auto; }
+.know b { font-family: var(--serif); font-size: 12.5px; line-height: 1.4; letter-spacing: 0.02em; }
+.cta-wrap .btn { margin-top: 0; }
+
+/* 下へ読み進めたときの「診断をはじめる」 */
+.sticky-cta { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); z-index: 30; width: min(480px, 100%); padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(rgba(251, 248, 245, 0), var(--paper) 30%); animation: fadeUp 0.3s ease both; }
+.sticky-cta .btn { margin: 0; }
+
+/* 使い方のシート */
+.howto-steps { list-style: none; margin: 6px 0 0; padding: 0; counter-reset: hs; }
+.howto-steps li { position: relative; padding: 12px 0 12px 46px; border-bottom: 1px dashed var(--line); counter-increment: hs; }
+.howto-steps li::before { content: counter(hs); position: absolute; left: 0; top: 12px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--blush); font-family: var(--en); font-size: 18px; color: var(--ink); }
+.howto-steps b { display: block; font-family: var(--serif); font-size: 15.5px; }
+.howto-steps span { display: block; font-size: 13px; color: var(--ink2); line-height: 1.7; }
+.howto-notes { margin: 16px 0 0; padding: 14px 16px 14px 32px; border-radius: 14px; background: #F6F1E8; font-size: 12.5px; color: var(--ink2); line-height: 1.8; }
+/* 方法：写真を使うを先頭に */
+.mode-main { border-color: var(--gold2); box-shadow: 0 10px 24px rgba(184, 149, 95, 0.14); }
+
+/* カメラ：撮影ボタンを画面の中に重ね、スクロールしなくても見えるように */
+#s-camera .pad { padding-top: 16px; padding-bottom: 20px; }
+.cam-title { margin-bottom: 6px; }
+#s-camera .tips-inline { margin-bottom: 10px; }
+.cam { aspect-ratio: auto; width: 100%; height: min(calc((min(100vw, 480px) - 44px) * 4 / 3), calc(100dvh - 250px)); min-height: 300px; }
+.cam-status { top: 12px; bottom: auto; }
+.shutter { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: 74px; height: 74px; border: 4px solid #fff; background: rgba(255, 255, 255, 0.25); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); z-index: 3; }
+.shutter span { background: #fff; }
+.shutter:disabled { opacity: 0.45; }
+.shutter:active span { transform: scale(0.88); }
+.cam-sub { margin-top: 10px; }
+/* 写真の目安 */
+.pr-list { display: grid; gap: 12px; }
+.pr-item { padding: 14px 12px 12px; border-radius: var(--radius); background: rgba(255, 255, 255, 0.9); box-shadow: 0 1px 0 var(--line), 0 10px 24px rgba(120, 90, 70, 0.06); }
+.pr-title { margin: 0 4px 10px; font-family: var(--serif); font-weight: 700; font-size: 15px; letter-spacing: 0.03em; }
+.pr-opts { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 6px; }
+.pr-opt { position: relative; display: grid; padding: 4px 3px 8px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; }
+.pr-art { display: block; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; background: #FDFBF9; }
+.pr-art svg { width: 100%; height: 100%; }
+.pr-label { margin-top: 4px; font-size: 11px; font-weight: 500; line-height: 1.35; text-align: center; }
+.pr-opt.on { border-color: var(--gold); background: #FFFBF4; box-shadow: 0 0 0 2px rgba(216, 195, 160, 0.5); }
+.pr-opt .badge { top: -9px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 9.5px; }
+.pr-rest { margin: 16px 0 0; padding: 12px 14px; border-radius: 12px; background: #F6F1E8; font-size: 12.5px; color: var(--ink2); line-height: 1.75; }
+
+/* 4択は2列で大きく */
+.options.four { grid-template-columns: repeat(2, 1fr); max-width: 360px; }

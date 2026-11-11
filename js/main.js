@@ -28,6 +28,7 @@ const state = {
   people: [],         // { nick, gender, mode, answers, photoPicks, result, point, goal, goalPoint, goalType, tips }
   idx: 0,
   q: 0,
+  list: [],          // 出す質問の並び（QUESTIONS の番号）
   history: [],
 };
 const me = () => state.people[state.idx];
@@ -57,7 +58,7 @@ function show(name, { push = true } = {}) {
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   // 2人目以降の入力画面からは、前の人へはもどらない（1人とばされるのを防ぐ）
   $('#back').hidden = ['title', 'reveal', 'end', 'group', 'tips'].includes(name) || (name === 'person' && state.idx > 0);
-  if (name !== 'title') ensureGuard();
+  if (name !== 'title') { ensureGuard(); $('#stickyCta').hidden = true; }
   $('#progress').hidden = name !== 'quiz';
   if (name === 'result' || name === 'reveal' || name === 'goal' || name === 'tips' || name === 'group' || name === 'end') playBgm('kekka');
   else if (name !== 'title') playBgm('main');
@@ -117,7 +118,15 @@ $('#titleChart').innerHTML = chartSVG({ corners: 'f', names: false });
 $('#typeStrip').innerHTML = TYPES.map((t, i) => `<figure class="strip-item" style="--c:${t.color}">
   <span class="strip-img"><img src="img/${i % 2 ? 'm' : 'f'}_${t.id}.webp" alt="" loading="lazy" width="384" height="540"></span>
   <figcaption><b>${esc(t.name)}</b><span>${esc(t.catch)}</span></figcaption></figure>`).join('');
+// 下へ読み進めたときも、画面の下に「診断をはじめる」を出す
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([en]) => {
+    $('#stickyCta').hidden = en.isIntersecting || en.boundingClientRect.top > 0 || state.screen !== 'title';
+  }).observe($('#start'));
+}
+$('#start2').addEventListener('click', () => $('#start').click());
 $('#start').addEventListener('click', () => {
+  $('#stickyCta').hidden = true;
   initAudio(isEnabled());
   setSound(isEnabled());
   say('v01_title');
@@ -269,8 +278,10 @@ async function analyzePhoto(cv) {
   clearStill(cv);
   analyzing = false;
   if (token !== analyzeToken || state.screen !== 'camera') return;   // 待っている間に別の操作をしたら、そちらを優先
-  beginQuiz();
-}// 写真は残さない：測り終わったら画面からも消す
+  openPhotoReview();
+}
+
+// 写真は残さない：測り終わったら画面からも消す
 function clearStill(cv) {
   const c = cv.getContext('2d');
   c.setTransform(1, 0, 0, 1, 0, 0);
@@ -278,41 +289,83 @@ function clearStill(cv) {
   cv.width = 1; cv.height = 1;
 }
 
+// ---------- 写真の目安（写真から分かる答えを、まとめて先に見せる） ----------
+function openPhotoReview() {
+  renderPhotoReview();
+  show('photo');
+  say('v02_howto');
+}
+function renderPhotoReview() {
+  const p = me();
+  const qs = QUESTIONS.filter((q) => p.photoPicks[q.id] !== undefined);
+  const rest = QUESTIONS.length - qs.length;
+  $('#prCount').textContent = qs.length;
+  const SHORT = { q01: '顔の形', q02: 'フェイスライン', q03: '顔の中央の長さ', q04: '目の形', q05: '目の大きさ', q06: '眉の形', q07: 'あごの長さ', q08: 'くちびる', q09: '鼻の長さ', q10: 'ほおの肉づき', q11: 'おでこの広さ', q12: '鼻先の形' };
+  const restNames = QUESTIONS.filter((q) => p.photoPicks[q.id] === undefined).map((q) => SHORT[q.id]);
+  $('#prRestText').textContent = `「${restNames.join('」「')}」は、写真では正確に測れないため、このあと自分で答えます（${rest}問）。`;
+  $('#prNext').textContent = `残りの${rest}問に答える`;
+  $('#prList').innerHTML = qs.map((q) => {
+    const picked = p.answers[q.id];
+    return `<div class="pr-item" data-q="${q.id}">
+      <p class="pr-title">${esc(q.title)}</p>
+      <div class="pr-opts" style="--n:${q.options.length}">${q.options.map((o, i) => `
+        <button type="button" class="pr-opt${picked === i ? ' on' : ''}" data-i="${i}" aria-pressed="${picked === i}">
+          <span class="pr-art">${faceSVG({ [q.param]: o.val }, { gender: p.gender, focus: q.param, label: o.label })}</span>
+          <span class="pr-label">${phr(o.label)}</span>
+          ${p.photoPicks[q.id] === i ? '<span class="badge">写真の目安</span>' : ''}
+        </button>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+$('#prList').addEventListener('click', (e) => {
+  const b = e.target.closest('.pr-opt');
+  if (!b) return;
+  chime('tap');
+  const item = b.closest('.pr-item');
+  me().answers[item.dataset.q] = Number(b.dataset.i);
+  for (const x of item.querySelectorAll('.pr-opt')) { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }
+});
+$('#prNext').addEventListener('click', () => { chime('step'); beginQuiz(); });
+
 // ---------- 質問 ----------
+// 写真を使ったときは、写真で答えが入らなかった質問だけを出す（state.list ＝ 出す質問の並び）
+const curQ = () => QUESTIONS[state.list[state.q]];
 function beginQuiz() {
   const p = me();
-  if (p.mode !== 'photo') p.answers = {};
+  if (p.mode !== 'photo') { p.answers = {}; p.photoPicks = {}; }
+  state.list = QUESTIONS.map((q, i) => i).filter((i) => p.mode !== 'photo' || p.photoPicks[QUESTIONS[i].id] === undefined);
   state.q = 0;
   renderQuestion();
   show('quiz');
-  say('v02_howto');
+  if (p.mode !== 'photo') say('v02_howto');
 }
 function renderQuestion() {
-  const q = QUESTIONS[state.q];
+  const q = curQ();
   const p = me();
+  const total = state.list.length;
   $('#qNum').textContent = String(state.q + 1).padStart(2, '0');
+  $('#qOf').textContent = `/ ${String(total).padStart(2, '0')}`;
   $('#qTitle').textContent = q.title;
   $('#qHint').textContent = q.hint;
   $('#qProText').textContent = PRO[q.id] || '';
   $('#qPrev').hidden = state.q === 0;
-  $('#progressBar').style.width = `${(state.q / QUESTIONS.length) * 100}%`;
-  const fromPhoto = p.photoPicks[q.id] !== undefined;
-  $('#qPhoto').hidden = !fromPhoto;
+  $('#progressBar').style.width = `${(state.q / total) * 100}%`;
+  $('#qPhoto').hidden = true;
   const picked = p.answers[q.id];
+  $('#options').classList.toggle('four', q.options.length === 4);
   $('#options').innerHTML = q.options.map((o, i) => `
     <button type="button" class="opt${picked === i ? ' on' : ''}" role="radio" aria-checked="${picked === i}" data-i="${i}">
       <span class="opt-art">${faceSVG({ [q.param]: o.val }, { gender: p.gender, focus: q.param, label: o.label })}</span>
-      <span class="opt-label">${esc(o.label)}</span>
-      ${fromPhoto && p.photoPicks[q.id] === i ? '<span class="badge">写真の目安</span>' : ''}
+      <span class="opt-label">${phr(o.label)}</span>
     </button>`).join('');
   $('#qNext').hidden = picked === undefined || picked === SKIP;
-  $('#qDots').innerHTML = QUESTIONS.map((x, i) => `<li class="${i < state.q ? 'done' : i === state.q ? 'now' : ''}${p.photoPicks[x.id] !== undefined ? ' photo' : ''}"></li>`).join('');
+  $('#qDots').innerHTML = state.list.map((x, i) => `<li class="${i < state.q ? 'done' : i === state.q ? 'now' : ''}"></li>`).join('');
   $('#qSkip').classList.toggle('on', picked === SKIP);
 }
 let nextTimer = null;
 function answer(val) {
   const p = me();
-  p.answers[QUESTIONS[state.q].id] = val;
+  p.answers[curQ().id] = val;
   chime('tap');
   for (const b of $$('#options .opt')) {
     const on = Number(b.dataset.i) === val;
@@ -325,9 +378,9 @@ function answer(val) {
 }
 function nextQuestion() {
   if (state.screen !== 'quiz') return;
-  if (state.q < QUESTIONS.length - 1) {
+  if (state.q < state.list.length - 1) {
     state.q++;
-    if (state.q === 6) say('v05_half');
+    if (state.list.length >= 10 && state.q === Math.floor(state.list.length / 2)) say('v05_half');
     const box = $('#s-quiz .pad');
     box.classList.remove('slide', 'slide-back'); void box.offsetWidth; box.classList.add('slide');
     renderQuestion();
@@ -351,7 +404,6 @@ $('#qPrev').addEventListener('click', () => {
   renderQuestion();
   window.scrollTo({ top: 0 });
 });
-
 // ---------- 読み解き → 結果 ----------
 async function finishQuiz() {
   const p = me();
@@ -471,6 +523,7 @@ function shopCard(s, p, rec) {
         ${s.page ? `<span class="shopcard-page">誌面 P.${esc(s.page)}</span>` : ''}
       </div>
     </div>
+    ${s.photo ? `<figure class="shopcard-photo"><img src="${esc(s.photo)}" alt="${esc(s.photoAlt || s.name)}" loading="lazy"><figcaption>くれよん誌面より</figcaption></figure>` : ''}
     ${rec && tip ? `<p class="shopcard-why"><b>あなたへのおすすめ</b>${esc(s.tipNote?.[cat] || `${CAT_LABEL(cat, p.gender)}のことを相談するなら`)}<span>コツ「${esc(tip.title)}」</span></p>` : ''}
     <p class="shopcard-catch">${esc(s.catch)}</p>
     ${s.menu?.length ? `<dl class="shopcard-menu">${s.menu.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : ''}
@@ -480,9 +533,10 @@ function shopCard(s, p, rec) {
       ${s.hours ? `<li><b>時間</b>${esc(s.hours)}</li>` : ''}
       ${s.holiday ? `<li><b>休み</b>${esc(s.holiday)}</li>` : ''}
     </ul>
-    <div class="shopcard-actions">
+    <div class="shopcard-actions${s.url ? ' three' : ''}">
       <a class="mini-btn" href="tel:${esc(s.tel.replace(/[^0-9]/g, ''))}" data-stat="shop:${esc(s.id)}">電話する<small>${esc(s.tel)}</small></a>
       <a class="mini-btn" href="${mapUrl}" target="_blank" rel="noopener" data-stat="shop:${esc(s.id)}">地図を見る</a>
+      ${s.url && /^https:\/\//.test(s.url) ? `<a class="mini-btn hp" href="${esc(s.url)}" target="_blank" rel="noopener" data-stat="shop:${esc(s.id)}">ホームページ</a>` : ''}
     </div>
   </article>`;
 }
@@ -638,9 +692,12 @@ function goBack() {
 $('#back').addEventListener('click', () => { chime('tap'); goBack(); });
 
 // ---------- 根拠のシート ----------
-for (const b of $$('[data-open="about"]')) b.addEventListener('click', () => openDialog($('#about')));
-for (const b of $$('#about [data-close]')) b.addEventListener('click', () => closeDialog($('#about')));
-$('#about').addEventListener('click', (e) => { if (e.target.id === 'about') closeDialog($('#about')); });
+// 根拠・使い方のシート（data-open="ダイアログのid"）
+for (const b of $$('[data-open]')) b.addEventListener('click', () => { chime('tap'); openDialog(document.getElementById(b.dataset.open)); });
+for (const d of $$('#about, #howto')) {
+  for (const b of d.querySelectorAll('[data-close]')) b.addEventListener('click', () => closeDialog(d));
+  d.addEventListener('click', (e) => { if (e.target === d) closeDialog(d); });
+}
 $('#credit').textContent = `${ISSUE_LABEL}　企画・制作 ケイ・クリエイト`;
 
 // ---------- 確認用の入口（自動テストで使う） ----------
@@ -651,8 +708,8 @@ if (DEMO_HOSTS.some((h) => location.hostname === h || location.hostname.endsWith
   screen: () => state.screen,
   // pattern: 'lv0soft' のように指定すると、そのタイプになる答えを入れて結果へ
   async quickAnswer(fn) {
-    for (let i = state.q; i < QUESTIONS.length; i++) {
-      const q = QUESTIONS[state.q];
+    for (let i = state.q; i < state.list.length; i++) {
+      const q = curQ();
       const pick = fn(q, state.q);
       answer(pick);
       await new Promise((r) => setTimeout(r, 420 / TS));

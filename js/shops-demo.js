@@ -4,7 +4,7 @@
 // 西北版の営業前の見本なので、実際の西北版の掲載店とは別。本番では使わない
 export const DEMO_SHOPS = [
   {
-    id: 'demo_boisson', name: '美容室 ボワゾン', kind: '美容室', cats: ['hair'], for: ['f'],
+    id: 'demo_powason', name: '美容室 ポワゾン', kind: '美容室', url: 'https://powason.com/', photo: 'img/shops/demo_powason.webp', photoAlt: 'くせ毛エステの施術前と施術後の髪', cats: ['hair'], for: ['f'],
     catch: '大人の髪悩み（うねり・広がり・パサつき）に寄り添う、くせ毛エステが得意なサロン。',
     menu: [['くせ毛エステ', '8,800〜16,500円'], ['電子トリートメント', '4,400〜6,600円'], ['ヘアリセッター', '3,300円']],
     coupon: 'くせ毛エステなどの施術で、専売品のトリートメントを1本プレゼント',
@@ -12,7 +12,7 @@ export const DEMO_SHOPS = [
     area: '一宮市', address: '一宮市光明寺字千馬235', tel: '0586-51-0700', hours: '9:00〜18:00', holiday: '月・火曜', page: '79',
   },
   {
-    id: 'demo_morley', name: 'Barber Morley モーリーの床屋', kind: '理容室', cats: ['hair', 'skin'], for: ['m'],
+    id: 'demo_morley', name: 'Barber Morley モーリーの床屋', kind: '理容室', url: 'https://morley.amebaownd.com/', photo: 'img/shops/demo_morley.webp', photoAlt: 'シャンプーをするスタッフ', cats: ['hair', 'skin'], for: ['m'],
     catch: '朝8時から夜9時まで受付。カット・顔そり・ヘッドスパまで、仕事や学校の前後に通える理容室。',
     menu: [['デザインカット＋シェービング＋もみほぐし（読者限定）', '2,970円'], ['炭酸ヘッドスパ', '1,320円'], ['女性顔そり＋美白パック', '2,640円']],
     coupon: 'クーポン提示でプチプレゼント',
@@ -20,7 +20,7 @@ export const DEMO_SHOPS = [
     area: '稲沢市', address: '稲沢市小沢3-18-17', tel: '0587-74-2017', hours: '8:00〜21:00（受付）', holiday: '木曜・第2水曜', page: '78',
   },
   {
-    id: 'demo_rose', name: 'Hiroko ロゼ', kind: '眉サロン', cats: ['brow'], for: ['f', 'm'],
+    id: 'demo_rose', name: 'Hiroko ロゼ', kind: '眉サロン', url: '', photo: 'img/shops/demo_rose.webp', photoAlt: '整えた眉と目もと', cats: ['brow'], for: ['f', 'm'],
     catch: '眉を整えて、顔のバランスをすっきり。自然な仕上がりが好評で、男性・ペアでの利用もOK。',
     menu: [['美眉メニュー（20周年記念・粗品進呈）', '要問い合わせ'], ['無料カウンセリング', '0円']],
     coupon: '',
@@ -28,7 +28,7 @@ export const DEMO_SHOPS = [
     area: '岩倉市', address: '岩倉市大地新町3-104', tel: '090-5329-2722', hours: '11:00〜18:00（完全予約制）', holiday: '不定休', page: '78',
   },
   {
-    id: 'demo_orizu', name: '稲沢おりづ皮膚科（医療アートメイク）', kind: '皮膚科', cats: ['brow'], for: ['f'],
+    id: 'demo_orizu', name: '稲沢おりづ皮膚科（医療アートメイク）', kind: '皮膚科', url: 'https://inazawa-orizu-skinclinic.jp/', photo: 'img/shops/demo_orizu.webp', photoAlt: '医療アートメイクのイメージ', cats: ['brow'], for: ['f'],
     catch: '医師の診察・指示のもと、担当看護師が骨格や表情に合わせて眉・アイライン・リップをデザイン。',
     menu: [['眉・リップ アートメイク（2回）', '146,000円'], ['アイライン アートメイク（1回）', '55,000円'], ['モニター料金', 'あり（条件付き）']],
     coupon: '',
@@ -36,4 +36,4 @@ export const DEMO_SHOPS = [
     area: '稲沢市', address: '稲沢市下津住吉町27番地1', tel: '0587-21-1511', hours: '', holiday: '', page: '79',
   },
 ];
-export const DEMO_NOTE = '見本：くれよん 一宮・稲沢版 2026年11月号の掲載内容から作成しています（西北版の掲載店ではありません）';
+export const DEMO_NOTE = '見本：くれよん 一宮・稲沢版 2026年11月号の掲載内容（写真も誌面から）とお店のホームページから作成しています（西北版の掲載店ではありません）';

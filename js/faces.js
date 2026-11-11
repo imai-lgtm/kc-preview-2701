@@ -112,8 +112,9 @@ function brow(p, g, dir, gender) {
   const peakX = g.cx + dir * (28 + 2 * bt);
   const w = gender === 'm' ? 3.4 : 2.3;
   let d;
-  if (p.brow <= -0.5) d = `M ${inner} ${y + 1} C ${f1(inner + dir * 7)} ${y - 7} ${f1(peakX - dir * 2)} ${y - 8} ${outer} ${y + 2}`;
-  else if (p.brow < 0.5) d = `M ${inner} ${y + 1} C ${f1(inner + dir * 8)} ${y - 3} ${f1(peakX)} ${y - 4.5} ${outer} ${y + 1.5}`;
+  if (p.brow <= -0.7) d = `M ${inner} ${y + 1} C ${f1(inner + dir * 7)} ${y - 7} ${f1(peakX - dir * 2)} ${y - 8} ${outer} ${y + 2}`;
+  else if (p.brow < 0) d = `M ${inner} ${y + 1} C ${f1(inner + dir * 8)} ${y - 3.5} ${f1(peakX)} ${y - 5} ${outer} ${y + 1.5}`;
+  else if (p.brow < 0.7) d = `M ${inner} ${y} C ${f1(inner + dir * 9)} ${y - 1.6} ${f1(peakX)} ${y - 2.4} ${outer} ${y + 0.4}`;
   else d = `M ${inner} ${y} L ${f1(peakX)} ${y - 3.4} L ${outer} ${y + 0.6}`;
   return `<path d="${d}" stroke="#5A4440" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
 }

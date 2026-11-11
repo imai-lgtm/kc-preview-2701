@@ -23,9 +23,12 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
       </button>
       <div class="bar-title" id="barTitle"><span class="brand">くれよん</span><span class="bar-sub">顔バランス診断</span></div>
+      <div class="bar-right">
+      <button class="bar-help" id="help" type="button" aria-label="使い方" data-open="howto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.4a2.5 2.5 0 014.8.8c0 1.7-2.4 2.1-2.4 3.6M12 16.8h.01" /></svg><span>使い方</span></button>
       <button class="bar-sound" id="sound" type="button" aria-label="音を消す" aria-pressed="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z" /><path class="wave" d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" /><path class="mute" d="M16 9l6 6M22 9l-6 6" /></svg>
       </button>
+      </div>
       <div class="progress" id="progress" hidden><span id="progressBar"></span></div>
     </header>
 
@@ -41,6 +44,11 @@
       </div>
       <div class="pad">
         <div class="cta-wrap">
+          <ol class="know" aria-label="この診断でわかること">
+            <li><img src="img/spot_mirror.webp" alt=""><b>8つの<br>顔立ちタイプ</b></li>
+            <li><img src="img/spot_brow.webp" alt=""><b>似合う<br>髪・眉・メイク</b></li>
+            <li><img src="img/spot_hair.webp" alt=""><b>2027年の<br>なりたい自分へ</b></li>
+          </ol>
           <button class="btn btn-primary" id="start" type="button">診断をはじめる</button>
           <p class="meta">所要時間 約3分 ・ 1台で4人まで続けて診断できます</p>
           <p class="meta meta-sound">音声とBGMが流れます（右上のボタンで消せます）</p>
@@ -118,16 +126,15 @@
         <p class="eyebrow">STEP 3</p>
         <h2 class="h2">診断のしかたを選んでください</h2>
         <div class="mode-list">
+          <button type="button" class="mode mode-main" id="modePhoto">
+            <span class="mode-icon" aria-hidden="true"><img src="img/spot_phone.webp" alt=""></span>
+            <span class="mode-body"><b>写真を使う</b><span>写真から分かる8問を「目安」としてまとめて入れます。残りの4問は自分で答えます</span></span>
+          </button>
           <button type="button" class="mode" id="modeQuiz">
             <span class="mode-icon" aria-hidden="true"><img src="img/spot_mirror.webp" alt=""></span>
-            <span class="mode-body"><b>質問に答える</b><span>鏡を見ながら、イラストから選ぶだけ。12問・約3分</span></span>
+            <span class="mode-body"><b>すべての質問に自分で答える</b><span>鏡を見ながら、イラストから選ぶだけ。12問・約3分</span></span>
           </button>
-          <button type="button" class="mode" id="modePhoto">
-            <span class="mode-icon" aria-hidden="true"><img src="img/spot_phone.webp" alt=""></span>
-            <span class="mode-body"><b>写真も使う</b><span>顔の写真から7問の答えを自動で入れます。確かめながら進めます</span></span>
-          </button>
-        </div>
-        <div class="privacy">
+        </div>        <div class="privacy">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg>
           <p>写真は<b>あなたのスマホの中だけ</b>で使います。保存も送信もしません。答えの結果（タイプ名など）だけを、個人がわからない形で数えています。</p>
         </div>
@@ -137,7 +144,7 @@
     <!-- カメラ -->
     <section class="screen" id="s-camera" data-screen="camera" hidden>
       <div class="pad">
-        <h2 class="h2 small">正面から1枚撮ってください</h2>
+        <h2 class="h2 small cam-title">正面から1枚撮ってください</h2>
         <ul class="tips-inline">
           <li>腕をのばして、目の高さで</li>
           <li>前髪を上げて、真顔で</li>
@@ -146,14 +153,11 @@
         <div class="cam" id="cam">
           <video id="video" playsinline muted></video>
           <canvas id="still" hidden></canvas>
-          <svg class="cam-guide" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="150" cy="190" rx="92" ry="125"/></svg>
+          <svg class="cam-guide" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><ellipse cx="150" cy="180" rx="92" ry="122"/></svg>
           <div class="cam-dots" id="camDots"></div>
           <p class="cam-status" id="camStatus" aria-live="polite">カメラを準備しています…</p>
-        </div>
-        <div class="cam-actions">
           <button class="shutter" id="shutter" type="button" aria-label="撮る" disabled><span></span></button>
-        </div>
-        <div class="cam-sub">
+        </div>        <div class="cam-sub">
           <label class="link" for="photoFile">アルバムから選ぶ</label>
           <input type="file" id="photoFile" accept="image/*" hidden>
           <button class="link" type="button" id="camSkip">写真をやめて、質問で答える</button>
@@ -161,10 +165,22 @@
       </div>
     </section>
 
+    <!-- 写真の目安 -->
+    <section class="screen" id="s-photo" data-screen="photo" hidden>
+      <div class="pad">
+        <p class="eyebrow">FROM YOUR PHOTO</p>
+        <h2 class="h2">写真から読み取った目安</h2>
+        <p class="sub"><b id="prCount">8</b>問の答えを、写真から読み取りました。光や角度で変わるので、鏡で見てちがうと思ったら選び直してください。</p>
+        <div class="pr-list" id="prList"></div>
+        <p class="pr-rest" id="prRestText"></p>
+        <button class="btn btn-primary" id="prNext" type="button">残りの質問に答える</button>
+      </div>
+    </section>
+
     <!-- 質問 -->
     <section class="screen" id="s-quiz" data-screen="quiz" hidden>
       <div class="pad">
-        <p class="qnum"><span class="en">Q.</span><b id="qNum">01</b><span class="qof">/ 12</span></p>
+        <p class="qnum"><span class="en">Q.</span><b id="qNum">01</b><span class="qof" id="qOf">/ 12</span></p>
         <h2 class="qtitle" id="qTitle"></h2>
         <p class="qhint" id="qHint"></p>
         <p class="qphoto" id="qPhoto" hidden>写真から読み取った「目安」を選んでいます。光や角度で変わるので、鏡で見てちがうと思ったら選び直してください。</p>
@@ -284,7 +300,7 @@
         <h3 class="h3">③ 区切り方と重み <small>この診断で決めたもの</small></h3>
         <p>質問ごとの重み、8タイプへの分け方、写真の基準値は、研究から決まるものではなく、この診断のために決めたものです。すべての答え方（約53万通り）で、8つのどのタイプにもなれること・行き止まりがないことを確かめています。はっきりした特徴の4タイプ（チャートの四すみ）は、出にくくなる作りです。</p>
         <h3 class="h3">写真について</h3>
-        <p>写真から顔の比率を測るのは、Google の顔認識の技術（MediaPipe）を、あなたのスマホの中だけで動かしています。写真は保存も送信もしません。写真で答えを入れるのは、安定して測れた7問だけです。光や角度で変わるので、最後はご自身で確かめてください。</p>
+        <p>写真から顔の比率を測るのは、Google の顔認識の技術（MediaPipe）を、あなたのスマホの中だけで動かしています。写真は保存も送信もしません。写真で答えを入れるのは、安定して測れた8問だけです（おでこの広さは、写真の色から髪の生え際をさがして測ります。前髪で隠れているときは測りません）。光や角度で変わるので、最後はご自身で確かめてください。</p>
         <p class="note small">医学的な診断ではありません。楽しみながら、似合うを見つけるヒントとしてお使いください。</p>
         <button class="btn btn-ghost" type="button" data-close>閉じる</button>
       </div>
@@ -300,6 +316,30 @@
         <div id="shopsList"></div>
         <p class="note small" id="shopsNote"></p>
         <button class="btn btn-ghost" type="button" data-close>閉じる</button>
+      </div>
+    </dialog>
+
+    <div class="sticky-cta" id="stickyCta" hidden><button class="btn btn-primary" type="button" id="start2">診断をはじめる</button></div>
+
+    <!-- 使い方 -->
+    <dialog class="sheet" id="howto" aria-labelledby="howtoTitle">
+      <div class="sheet-inner">
+        <button class="sheet-close" type="button" data-close aria-label="閉じる">×</button>
+        <p class="eyebrow">HOW TO</p>
+        <h2 class="h2" id="howtoTitle">使い方</h2>
+        <ol class="howto-steps">
+          <li><b>人数とニックネーム</b><span>1台のスマホで4人まで、順番に診断できます。質問のイラストは女性・男性から選べます。</span></li>
+          <li><b>写真を使う／自分で答える</b><span>写真を使うと、写真から分かる8問を「目安」として先に入れます。残りの質問は鏡を見ながら答えます。</span></li>
+          <li><b>結果とチャート</b><span>8つの顔立ちタイプと、似合う髪型・眉・メイク・服がわかります。</span></li>
+          <li><b>なりたい印象を選ぶ</b><span>2027年になりたい印象に近づく、プロのコツを3つ紹介します。</span></li>
+          <li><b>誌面のお店・画像で保存</b><span>コツを相談できる掲載店を見たり、結果を画像で保存したりできます。</span></li>
+        </ol>
+        <ul class="howto-notes">
+          <li>答えをまちがえたら「前の質問にもどる」で選び直せます</li>
+          <li>音声とBGMは、右上のスピーカーのボタンで消せます</li>
+          <li>写真はスマホの中だけで使い、保存も送信もしません</li>
+        </ul>
+        <button class="btn btn-primary" type="button" data-close>閉じる</button>
       </div>
     </dialog>
 

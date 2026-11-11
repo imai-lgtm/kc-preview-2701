@@ -94,11 +94,12 @@ export function pickTips(result, goalId, gender = 'f') {
   return { same, da, db, tips, goal, target: typeCenter(goal.type), me: chartPoint(result) };
 }
 // 写真から測った値 → 選択肢の番号（0/1/2）
-export function photoToPick(key, value) {
+export function photoToPick(key, value, n = 3) {
   const r = PHOTO_RULES[key];
   if (!r || !Number.isFinite(value)) return undefined;
-  let pos = value < r.lo ? 0 : value > r.hi ? 2 : 1;
-  if (r.dir < 0) pos = 2 - pos;
+  const cuts = n === 4 && r.cuts ? r.cuts : [r.lo, r.hi];
+  let pos = cuts.filter((c) => value > c).length;      // 区切りをいくつ超えたか
+  if (r.dir < 0) pos = cuts.length - pos;
   return pos;
 }
 
@@ -107,7 +108,7 @@ export function photoAnswers(measures) {
   const out = {};
   for (const q of QUESTIONS) {
     if (!q.photo) continue;
-    const pick = photoToPick(q.photo, measures[q.photo]);
+    const pick = photoToPick(q.photo, measures[q.photo], q.options.length);
     if (pick !== undefined) out[q.id] = pick;
   }
   return out;
