@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>なりたいジブン 顔バランス診断 2027｜くれよん</title>
+  <meta name="description" content="12の質問で、あなたの顔立ちの魅力と、今年なりたい自分に近づくコツがわかる診断。写真はスマホの外に出ません。">
+  <meta name="theme-color" content="#FBF8F5">
+  <!-- 検索に出さない（QRから来る人だけが見る）。検索に出したくなったら消す -->
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <!-- 外への通信を止める（_headers が効かない置き場所でも効くように） -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <link rel="icon" href="img/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="bar">
+      <button class="bar-back" id="back" type="button" aria-label="もどる" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <div class="bar-title" id="barTitle"><span class="brand">くれよん</span><span class="bar-sub">顔バランス診断</span></div>
+      <button class="bar-sound" id="sound" type="button" aria-label="音を消す" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z" /><path class="wave" d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" /><path class="mute" d="M16 9l6 6M22 9l-6 6" /></svg>
+      </button>
+      <div class="progress" id="progress" hidden><span id="progressBar"></span></div>
+    </header>
+
+    <!-- タイトル -->
+    <section class="screen" id="s-title" data-screen="title">
+      <div class="kv">
+        <div class="kv-text">
+          <p class="eyebrow">FACE BALANCE DIAGNOSIS <span>2027</span></p>
+          <h1 class="title">なりたいジブン<br>顔バランス診断</h1>
+          <p class="lead">12の質問で、あなたの顔立ちの魅力と<br>今年なりたい自分に近づくコツがわかります。</p>
+        </div>
+        <img src="img/key_visual.webp" alt="" width="768" height="1152" fetchpriority="high">
+      </div>
+      <div class="pad">
+        <div class="cta-wrap">
+          <button class="btn btn-primary" id="start" type="button">診断をはじめる</button>
+          <p class="meta">所要時間 約3分 ・ 1台で4人まで続けて診断できます</p>
+          <p class="meta meta-sound">音声とBGMが流れます（右上のボタンで消せます）</p>
+        </div>
+
+        <div class="learn">
+          <p class="eyebrow center">WHAT YOU'LL KNOW</p>
+          <h2 class="h2 center">この診断でわかること</h2>
+          <ol class="learn-list">
+            <li><span class="learn-art"><img src="img/spot_mirror.webp" alt="" loading="lazy"></span><b>8つの顔立ちタイプ</b><span>あなたの顔立ちの魅力と、チャートでの位置</span></li>
+            <li><span class="learn-art"><img src="img/spot_brow.webp" alt="" loading="lazy"></span><b>似合うポイント</b><span>髪型・眉・メイク・服の形まで</span></li>
+            <li><span class="learn-art"><img src="img/spot_hair.webp" alt="" loading="lazy"></span><b>なりたい自分に近づくコツ</b><span>2027年になりたい印象へ、プロのコツ3つ</span></li>
+          </ol>
+        </div>
+
+        <div class="types-strip">
+          <p class="eyebrow center">8 FACE TYPES</p>
+          <h2 class="h2 center">あなたはどの顔立ち？</h2>
+          <div class="strip" id="typeStrip"></div>
+          <p class="note small center">← 横にすべらせて見られます →</p>
+        </div>
+
+        <div class="explain">
+          <p class="eyebrow center">HOW IT WORKS</p>
+          <h2 class="h2 center">顔立ちの印象は、<br>2つのものさしで整理できます。</h2>
+          <div class="explain-chart" id="titleChart"></div>
+          <ul class="axis-notes">
+            <li><b>大人っぽさ</b><span>顔のたての長さ、目や鼻の大きさ・位置など。「あどけない」から「大人っぽい」まで。</span></li>
+            <li><b>やわらかさ</b><span>輪郭や目・眉・くちびるの形。丸みがあれば「やわらか」、直線的なら「シャープ」。</span></li>
+          </ul>
+          <p class="note">どこにいても、それぞれに魅力があります。良い・悪いではなく、「似合う」を見つけるための診断です。</p>
+          <button class="link" type="button" data-open="about">この診断の根拠について</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 人数 -->
+    <section class="screen" id="s-count" data-screen="count" hidden>
+      <div class="pad" data-num="01">
+        <img class="hero-spot" src="img/spot_family.webp" alt="" width="300" height="300">
+        <p class="eyebrow">STEP 1</p>
+        <h2 class="h2">何人で診断しますか？</h2>
+        <p class="sub">1台のスマホで、順番に診断できます。最後にみんなの結果を1枚のチャートで比べられます。</p>
+        <div class="count-grid" id="countGrid">
+          <button type="button" class="count" data-n="1"><b>1</b><span>ひとりで</span></button>
+          <button type="button" class="count" data-n="2"><b>2</b><span>ふたりで</span></button>
+          <button type="button" class="count" data-n="3"><b>3</b><span>3人で</span></button>
+          <button type="button" class="count" data-n="4"><b>4</b><span>4人で</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- だれが診断するか -->
+    <section class="screen" id="s-person" data-screen="person" hidden>
+      <div class="pad" data-num="02">
+        <p class="eyebrow" id="personStep">STEP 2</p>
+        <h2 class="h2" id="personTitle">あなたのことを教えてください</h2>
+        <label class="field">
+          <span class="field-label">ニックネーム（なくてもOK）</span>
+          <input type="text" id="nick" maxlength="8" autocomplete="off" enterkeyhint="done" placeholder="例：ママ">
+        </label>
+        <p class="field-label">質問のイラスト</p>
+        <div class="seg" id="genderSeg" role="radiogroup" aria-label="質問のイラスト">
+          <button type="button" role="radio" aria-checked="true" data-g="f">女性の絵</button>
+          <button type="button" role="radio" aria-checked="false" data-g="m">男性の絵</button>
+        </div>
+        <p class="note small">似合う髪型やメイクの提案も、選んだ絵に合わせて変わります。お子さまも遊べます（メイクやひげのコツは大人向けです）。</p>
+        <button class="btn btn-primary" id="personNext" type="button">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- 方法 -->
+    <section class="screen" id="s-mode" data-screen="mode" hidden>
+      <div class="pad" data-num="03">
+        <p class="eyebrow">STEP 3</p>
+        <h2 class="h2">診断のしかたを選んでください</h2>
+        <div class="mode-list">
+          <button type="button" class="mode" id="modeQuiz">
+            <span class="mode-icon" aria-hidden="true"><img src="img/spot_mirror.webp" alt=""></span>
+            <span class="mode-body"><b>質問に答える</b><span>鏡を見ながら、イラストから選ぶだけ。12問・約3分</span></span>
+          </button>
+          <button type="button" class="mode" id="modePhoto">
+            <span class="mode-icon" aria-hidden="true"><img src="img/spot_phone.webp" alt=""></span>
+            <span class="mode-body"><b>写真も使う</b><span>顔の写真から7問の答えを自動で入れます。確かめながら進めます</span></span>
+          </button>
+        </div>
+        <div class="privacy">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg>
+          <p>写真は<b>あなたのスマホの中だけ</b>で使います。保存も送信もしません。答えの結果（タイプ名など）だけを、個人がわからない形で数えています。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- カメラ -->
+    <section class="screen" id="s-camera" data-screen="camera" hidden>
+      <div class="pad">
+        <h2 class="h2 small">正面から1枚撮ってください</h2>
+        <ul class="tips-inline">
+          <li>腕をのばして、目の高さで</li>
+          <li>前髪を上げて、真顔で</li>
+          <li>明るい場所で</li>
+        </ul>
+        <div class="cam" id="cam">
+          <video id="video" playsinline muted></video>
+          <canvas id="still" hidden></canvas>
+          <svg class="cam-guide" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="150" cy="190" rx="92" ry="125"/></svg>
+          <div class="cam-dots" id="camDots"></div>
+          <p class="cam-status" id="camStatus" aria-live="polite">カメラを準備しています…</p>
+        </div>
+        <div class="cam-actions">
+          <button class="shutter" id="shutter" type="button" aria-label="撮る" disabled><span></span></button>
+        </div>
+        <div class="cam-sub">
+          <label class="link" for="photoFile">アルバムから選ぶ</label>
+          <input type="file" id="photoFile" accept="image/*" hidden>
+          <button class="link" type="button" id="camSkip">写真をやめて、質問で答える</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 質問 -->
+    <section class="screen" id="s-quiz" data-screen="quiz" hidden>
+      <div class="pad">
+        <p class="qnum"><span class="en">Q.</span><b id="qNum">01</b><span class="qof">/ 12</span></p>
+        <h2 class="qtitle" id="qTitle"></h2>
+        <p class="qhint" id="qHint"></p>
+        <p class="qphoto" id="qPhoto" hidden>写真から読み取った「目安」を選んでいます。光や角度で変わるので、鏡で見てちがうと思ったら選び直してください。</p>
+        <div class="options" id="options" role="radiogroup"></div>
+        <div class="q-actions">
+          <button class="btn btn-primary btn-small" id="qNext" type="button" hidden>これで次へ</button>
+          <button class="link" id="qSkip" type="button">わからない・どちらとも言えない</button>
+        </div>
+        <aside class="pro" id="qPro">
+          <p class="pro-h"><span class="pro-icon" aria-hidden="true"></span>PRO'S ADVICE<small>見分け方のコツ</small></p>
+          <p class="pro-text" id="qProText"></p>
+        </aside>
+        <div class="q-foot">
+          <button class="q-prev" id="qPrev" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>前の質問にもどる</button>
+          <ol class="qdots" id="qDots" aria-hidden="true"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 読み解き中 -->
+    <section class="screen" id="s-reveal" data-screen="reveal" hidden>
+      <div class="pad reveal">
+        <div class="reveal-chart" id="revealChart"></div>
+        <p class="reveal-text" id="revealText">あなたの顔立ちを読み解いています</p>
+      </div>
+    </section>
+
+    <!-- 結果 -->
+    <section class="screen" id="s-result" data-screen="result" hidden>
+      <div class="result-hero">
+        <p class="eyebrow center" id="resWho">YOUR FACE BALANCE</p>
+        <div class="portrait"><img id="resImg" alt="" width="384" height="540"></div>
+        <p class="res-pre">あなたの顔立ちは</p>
+        <h2 class="res-name" id="resName"></h2>
+        <p class="res-catch" id="resCatch"></p>
+      </div>
+      <div class="pad">
+        <div class="res-chart" id="resChart"></div>
+        <p class="balanced" id="resBalanced" hidden>あなたは、ちょうどチャートの真ん中あたり。どの方向にも寄せられる「バランス顔」です。いちばん近いタイプを表示しています。</p>
+        <div class="card">
+          <h3 class="h3">プロからひとこと</h3>
+          <p id="resCharm"></p>
+          <ul class="chips" id="resFeatures"></ul>
+        </div>
+        <div class="card">
+          <h3 class="h3">似合うポイント</h3>
+          <dl class="suits" id="resSuits"></dl>
+        </div>
+        <button class="btn btn-primary" id="toGoal" type="button">今年なりたい印象を選ぶ</button>
+        <button class="link" type="button" data-open="about">この診断の根拠について</button>
+      </div>
+    </section>
+
+    <!-- なりたい印象 -->
+    <section class="screen" id="s-goal" data-screen="goal" hidden>
+      <div class="pad" data-num="2027">
+        <p class="eyebrow">2027 GOAL</p>
+        <h2 class="h2">2027年、どんな印象に<br>なりたいですか？</h2>
+        <div class="goal-chart" id="goalChart"></div>
+        <div class="goal-grid" id="goalGrid" role="radiogroup"></div>
+        <button class="btn btn-primary" id="toTips" type="button" disabled>近づくコツを見る</button>
+      </div>
+    </section>
+
+    <!-- コツ -->
+    <section class="screen" id="s-tips" data-screen="tips" hidden>
+      <div class="pad">
+        <p class="eyebrow">3 TIPS FOR 2027</p>
+        <h2 class="h2" id="tipsTitle"></h2>
+        <p class="sub" id="tipsSub"></p>
+        <div class="tips" id="tipsList"></div>
+        <div class="feature-link" id="featureLink"></div>
+        <div class="actions">
+          <button class="btn btn-ghost" id="saveCard" type="button">結果を画像で保存</button>
+          <button class="btn btn-primary" id="nextPerson" type="button"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- みんな -->
+    <section class="screen" id="s-group" data-screen="group" hidden>
+      <div class="pad">
+        <p class="eyebrow">EVERYONE</p>
+        <h2 class="h2">みんなの顔立ちチャート</h2>
+        <div class="group-chart" id="groupChart"></div>
+        <p class="group-comment" id="groupComment"></p>
+        <ul class="group-list" id="groupList"></ul>
+        <button class="btn btn-primary" id="toEnd" type="button">おわりへ</button>
+      </div>
+    </section>
+
+    <!-- おわり -->
+    <section class="screen" id="s-end" data-screen="end" hidden>
+      <div class="pad end">
+        <img class="hero-spot" src="img/spot_family.webp" alt="" width="300" height="300">
+        <p class="eyebrow center">THANK YOU</p>
+        <h2 class="h2 center">新しい年の「似合う」を、<br>楽しんでくださいね。</h2>
+        <div class="feature-link big" id="endFeature"></div>
+        <button class="btn btn-ghost" id="endSave" type="button">結果を画像で保存</button>
+        <button class="btn btn-primary" id="again" type="button">もう一度診断する</button>
+        <button class="link" type="button" data-open="about">この診断の根拠について</button>
+        <p class="credit" id="credit"></p>
+      </div>
+    </section>
+
+    <!-- 根拠 -->
+    <dialog class="sheet" id="about" aria-labelledby="aboutTitle">
+      <div class="sheet-inner">
+        <button class="sheet-close" type="button" data-close aria-label="閉じる">×</button>
+        <p class="eyebrow">ABOUT</p>
+        <h2 class="h2" id="aboutTitle">この診断の根拠について</h2>
+        <p>この診断は、顔立ちの印象を「大人っぽさ」と「やわらかさ」の2つのものさしで整理し、似合うヒントを見つけるためのものです。根拠の強さは部分ごとにちがうため、正直にお伝えします。</p>
+        <h3 class="h3">① 大人っぽさのものさし <small>研究の裏付けあり</small></h3>
+        <p>丸く短い顔、広いおでこ、大きな目、小さな鼻と口。こうした特徴を、人は「かわいい・幼い」と感じることが、赤ちゃんの顔写真を加工して確かめた実験でわかっています（Glocker ほか, 2009）。大人でも、こうした顔立ちの人は「やさしそう」「親しみやすい」と見られやすいことが知られています（Zebrowitz らの研究）。質問の「顔の形・目の大きさ・あごや鼻の長さ・おでこ」はこれにもとづいています。</p>
+        <h3 class="h3">② やわらかさのものさし <small>研究はあるが、顔での証明は弱め</small></h3>
+        <p>人は丸みのある形を好み、角ばった形にはするどい印象を持つことが、心理学の実験で示されています（Bar &amp; Neta, 2006 ほか）。ただし顔に当てはめた研究は少なく、似合わせの現場で使われてきた考え方にも頼っています。</p>
+        <h3 class="h3">③ 区切り方と重み <small>この診断で決めたもの</small></h3>
+        <p>質問ごとの重み、8タイプへの分け方、写真の基準値は、研究から決まるものではなく、この診断のために決めたものです。すべての答え方（約53万通り）で、8つのどのタイプにもなれること・行き止まりがないことを確かめています。はっきりした特徴の4タイプ（チャートの四すみ）は、出にくくなる作りです。</p>
+        <h3 class="h3">写真について</h3>
+        <p>写真から顔の比率を測るのは、Google の顔認識の技術（MediaPipe）を、あなたのスマホの中だけで動かしています。写真は保存も送信もしません。写真で答えを入れるのは、安定して測れた7問だけです。光や角度で変わるので、最後はご自身で確かめてください。</p>
+        <p class="note small">医学的な診断ではありません。楽しみながら、似合うを見つけるヒントとしてお使いください。</p>
+        <button class="btn btn-ghost" type="button" data-close>閉じる</button>
+      </div>
+    </dialog>
+
+    <!-- おすすめの掲載店 -->
+    <dialog class="sheet shops-sheet" id="shopsSheet" aria-labelledby="shopsTitle">
+      <div class="sheet-inner">
+        <button class="sheet-close" type="button" data-close aria-label="閉じる">×</button>
+        <p class="eyebrow" id="shopsKicker">BEAUTY SALONS</p>
+        <h2 class="h2" id="shopsTitle">あなたにおすすめの掲載店</h2>
+        <p class="sub" id="shopsLead"></p>
+        <div id="shopsList"></div>
+        <p class="note small" id="shopsNote"></p>
+        <button class="btn btn-ghost" type="button" data-close>閉じる</button>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
