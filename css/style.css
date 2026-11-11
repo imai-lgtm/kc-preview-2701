@@ -536,8 +536,9 @@ p, dd, .tip-why, .pro-text { text-wrap: pretty; }
 .cta-wrap .btn { margin-top: 0; }
 
 /* 下へ読み進めたときの「診断をはじめる」 */
-.sticky-cta { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); z-index: 30; width: min(480px, 100%); padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(rgba(251, 248, 245, 0), var(--paper) 30%); animation: fadeUp 0.3s ease both; }
+.sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; z-index: 30; width: min(480px, 100%); box-sizing: border-box; padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(rgba(251, 248, 245, 0), var(--paper) 30%); animation: stickyIn 0.3s ease both; }
+@keyframes stickyIn { from { opacity: 0; translate: 0 16px; } }
 .sticky-cta .btn { margin: 0; }
 
 /* 使い方のシート */

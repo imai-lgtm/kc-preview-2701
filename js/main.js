@@ -119,11 +119,15 @@ $('#typeStrip').innerHTML = TYPES.map((t, i) => `<figure class="strip-item" styl
   <span class="strip-img"><img src="img/${i % 2 ? 'm' : 'f'}_${t.id}.webp" alt="" loading="lazy" width="384" height="540"></span>
   <figcaption><b>${esc(t.name)}</b><span>${esc(t.catch)}</span></figcaption></figure>`).join('');
 // 下へ読み進めたときも、画面の下に「診断をはじめる」を出す
-if ('IntersectionObserver' in window) {
-  new IntersectionObserver(([en]) => {
-    $('#stickyCta').hidden = en.isIntersecting || en.boundingClientRect.top > 0 || state.screen !== 'title';
-  }).observe($('#start'));
+// （ボタンが画面の上へ流れていったら出す。スクロールのたびに位置を確かめるので、速くスクロールしても見逃さない）
+let stickyRaf = 0;
+function updateSticky() {
+  stickyRaf = 0;
+  const r = $('#start').getBoundingClientRect();
+  $('#stickyCta').hidden = state.screen !== 'title' || r.bottom > 0;
 }
+window.addEventListener('scroll', () => { if (!stickyRaf) stickyRaf = requestAnimationFrame(updateSticky); }, { passive: true });
+window.addEventListener('resize', () => { if (!stickyRaf) stickyRaf = requestAnimationFrame(updateSticky); });
 $('#start2').addEventListener('click', () => $('#start').click());
 $('#start').addEventListener('click', () => {
   $('#stickyCta').hidden = true;
