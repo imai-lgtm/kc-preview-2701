@@ -41,7 +41,8 @@ img, svg { display: block; max-width: 100%; }
 .app {
   position: relative;
   max-width: 480px;
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   margin: 0 auto;
   background: var(--paper);
   box-shadow: 0 0 60px rgba(90, 60, 50, 0.08);
@@ -247,7 +248,7 @@ img, svg { display: block; max-width: 100%; }
 .badge { position: absolute; top: 6px; left: 6px; font-size: 10px; padding: 1px 7px; border-radius: 99px; background: var(--ink); color: #fff; }
 .q-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 12px; }
 .q-actions .link.on { color: var(--gold); font-weight: 700; }
-#s-quiz .pad { min-height: calc(100dvh - 52px); display: flex; flex-direction: column; }
+#s-quiz .pad { min-height: calc(100vh - 52px); min-height: calc(100svh - 52px); display: flex; flex-direction: column; }
 .qdots { display: flex; justify-content: center; gap: 8px; list-style: none; margin: 0; padding: 10px 0 4px; }
 .qdots li { width: 7px; height: 7px; border-radius: 50%; background: var(--line); transition: all 0.3s; }
 .qdots li.done { background: var(--gold2); }
@@ -255,7 +256,7 @@ img, svg { display: block; max-width: 100%; }
 .qdots li.photo:not(.done):not(.now) { box-shadow: inset 0 0 0 1.5px var(--gold2); background: transparent; }
 
 /* ---------- 読み解き ---------- */
-.reveal { min-height: calc(100dvh - 52px); display: grid; align-content: center; justify-items: center; text-align: center; }
+.reveal { min-height: calc(100vh - 52px); min-height: calc(100svh - 52px); display: grid; align-content: center; justify-items: center; text-align: center; }
 .reveal-chart { width: min(320px, 82vw); }
 .reveal-chart:not(.done) .chart .frame, .reveal-chart:not(.done) .chart .axis { stroke-dasharray: 1100; stroke-dashoffset: 1100; animation: draw 2.4s ease forwards; }
 .reveal-text { margin: 22px 0 0; font-family: var(--serif); font-size: 16px; letter-spacing: 0.12em; color: var(--ink2); }
@@ -389,7 +390,7 @@ img, svg { display: block; max-width: 100%; }
 .credit { margin-top: 34px; font-size: 11px; color: var(--ink3); }
 
 /* ---------- 根拠のシート ---------- */
-.sheet { overflow-y: auto; overscroll-behavior: contain; width: min(480px, 100%); max-height: 88dvh; margin: auto auto 0; padding: 0; border: 0; border-radius: 24px 24px 0 0; background: var(--paper); color: var(--ink); }
+.sheet { overflow-y: auto; overscroll-behavior: contain; width: min(480px, 100%); max-height: 88vh; max-height: 88svh; margin: auto auto 0; padding: 0; border: 0; border-radius: 24px 24px 0 0; background: var(--paper); color: var(--ink); }
 .sheet::backdrop { background: rgba(40, 30, 30, 0.45); }
 .sheet[open] { animation: sheetUp 0.4s cubic-bezier(.2, .7, .2, 1); }
 @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } }
@@ -555,7 +556,7 @@ p, dd, .tip-why, .pro-text { text-wrap: pretty; }
 #s-camera .pad { padding-top: 16px; padding-bottom: 20px; }
 .cam-title { margin-bottom: 6px; }
 #s-camera .tips-inline { margin-bottom: 10px; }
-.cam { aspect-ratio: auto; width: 100%; height: min(calc((min(100vw, 480px) - 44px) * 4 / 3), calc(100dvh - 250px)); min-height: 300px; }
+.cam { aspect-ratio: auto; width: 100%; height: min(calc((min(100vw, 480px) - 44px) * 4 / 3), calc(100vh - 250px)); height: min(calc((min(100vw, 480px) - 44px) * 4 / 3), calc(100svh - 250px)); min-height: 300px; }
 .cam-status { top: 12px; bottom: auto; }
 .shutter { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: 74px; height: 74px; border: 4px solid #fff; background: rgba(255, 255, 255, 0.25); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); z-index: 3; }
 .shutter span { background: #fff; }
@@ -588,5 +589,19 @@ p, dd, .tip-why, .pro-text { text-wrap: pretty; }
   #s-camera .cam-title::after { display: none; }
   #s-camera .tips-inline { gap: 4px; margin-bottom: 8px; }
   #s-camera .tips-inline li { font-size: 10.5px; padding: 2px 7px; white-space: nowrap; }
-  .cam { height: calc(100dvh - 52px - 160px); min-height: 280px; }
+  .cam { height: calc(100vh - 52px - 160px); height: calc(100svh - 52px - 160px); min-height: 280px; }
 }
+/* iPhone の Safari で絵が伸びないように：比率の指定（aspect-ratio）は使わず、高さ0＋下の余白で比率を決める */
+.opt-art, .pr-art { position: relative; display: block; height: 0; padding-top: 125%; aspect-ratio: auto; }
+.opt-art svg, .pr-art svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.strip-img { position: relative; height: 0; padding-top: 122.4%; aspect-ratio: auto; }
+.strip-img img { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+.opt, .pr-opt { align-self: start; }
+
+/* 撮影の顔の枠：カメラの画面いっぱいに近い大きさ（撮影ボタンの帯より上） */
+.cam-guide { display: none; }
+.cam-oval { position: absolute; z-index: 1; left: 50%; top: 12px; transform: translateX(-50%); height: calc(100% - 104px); aspect-ratio: 3 / 4; max-width: 86%; border: 2px dashed rgba(255, 255, 255, 0.9); border-radius: 50%; pointer-events: none; }
+/* 選択肢の並びは、いつも画面の幅いっぱい（中身の言葉の長さで縮まない） */
+.options { width: 100%; align-self: center; }
+.options.four { width: 100%; max-width: 380px; }
+.pr-opts { width: 100%; }

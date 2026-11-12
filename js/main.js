@@ -368,8 +368,11 @@ function renderQuestion() {
   $('#progressBar').style.width = `${(state.q / total) * 100}%`;
   $('#qPhoto').hidden = true;
   const picked = p.answers[q.id];
-  $('#options').classList.toggle('four', q.options.length === 4);
-  $('#options').innerHTML = q.options.map((o, i) => `
+  const old = $('#options');
+  const fresh = document.createElement('div');
+  fresh.id = 'options'; fresh.className = q.options.length === 4 ? 'options four' : 'options'; fresh.setAttribute('role', 'radiogroup');
+  old.replaceWith(fresh);
+  fresh.innerHTML = q.options.map((o, i) => `
     <button type="button" class="opt${picked === i ? ' on' : ''}" role="radio" aria-checked="${picked === i}" data-i="${i}">
       <span class="opt-art">${faceSVG({ [q.param]: o.val }, { gender: p.gender, focus: q.param, label: o.label })}</span>
       <span class="opt-label">${phr(o.label)}</span>
@@ -406,7 +409,7 @@ function nextQuestion() {
     finishQuiz();
   }
 }
-$('#options').addEventListener('click', (e) => { const b = e.target.closest('.opt'); if (b) answer(Number(b.dataset.i)); });
+$('#s-quiz').addEventListener('click', (e) => { const b = e.target.closest('#options .opt'); if (b) answer(Number(b.dataset.i)); });
 $('#qSkip').addEventListener('click', () => answer(SKIP));
 $('#qNext').addEventListener('click', () => { chime('tap'); nextQuestion(); });
 // 前の質問にもどる（選んだ答えは残っているので、選び直すか「これで次へ」）
