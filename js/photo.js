@@ -20,7 +20,8 @@ export function loadLandmarker(onProgress = () => {}) {
       numFaces: 1,
       outputFacialTransformationMatrixes: true,
     });
-    try { landmarker = await make('GPU'); } catch { landmarker = await make('CPU'); }
+    // GPU（画像処理の部品）は iPhone の Safari で止まることがあるので、どの端末でも安定する CPU で動かす（写真1枚なら十分速い）
+    landmarker = await make('CPU');
     onProgress(1);
     return landmarker;
   })();
@@ -130,10 +131,17 @@ function findHairline(source, P, w, h) {
 
 // 画像（img / canvas / video）を調べる
 // → { ok, reason, measures, pose, landmarks }
-export async function analyze(source) {
+export async function analyze(original) {
   const lm = await loadLandmarker();
-  const w = source.videoWidth || source.naturalWidth || source.width;
-  const h = source.videoHeight || source.naturalHeight || source.height;
+  // 写真は長い辺を 960px までに小さくしてから調べる（大きい写真はメモリと時間を食い、古いスマホで固まる原因になる）
+  const ow = original.videoWidth || original.naturalWidth || original.width;
+  const oh = original.videoHeight || original.naturalHeight || original.height;
+  const s = Math.min(1, 960 / Math.max(ow, oh));
+  const source = document.createElement('canvas');
+  source.width = Math.round(ow * s); source.height = Math.round(oh * s);
+  source.getContext('2d').drawImage(original, 0, 0, source.width, source.height);
+  const w = source.width;
+  const h = source.height;
   const res = lm.detect(source);
   if (!res.faceLandmarks || !res.faceLandmarks.length) return { ok: false, reason: 'noface' };
   const landmarks = res.faceLandmarks[0];
@@ -155,6 +163,7 @@ export async function analyze(source) {
   else if (ps && Math.abs(ps.pitch) > 14) reason = 'pitch';
   else if (ps && Math.abs(ps.roll) > 10) reason = 'roll';
   else if (measures.faceSize < 0.22) reason = 'far';
+  source.width = 1; source.height = 1;      // 小さくした写真も、すぐに消す
   return { ok: !reason, reason, measures, pose: ps, landmarks };
 }
 

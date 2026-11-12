@@ -195,7 +195,7 @@ async function openCamera() {
     .then(() => { if (state.screen === 'camera' && stream) { $('#shutter').disabled = false; status.textContent = '顔を枠に合わせて、撮ってください'; } })
     .catch(() => { status.textContent = '読み取りの準備ができませんでした。質問で答えてください。'; });
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } }, audio: false });
     if (state.screen !== 'camera') { stopCamera(); return; }
     video.srcObject = stream;
     await video.play();
@@ -251,7 +251,19 @@ async function analyzePhoto(cv) {
   status.textContent = '顔の比率を測っています…';
   const mod = await photoMod;
   let res;
-  try { res = await mod.analyze(cv); } catch { res = { ok: false, reason: 'noface' }; }
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));   // 「測っています」を先に表示する
+  try {
+    res = await Promise.race([
+      mod.analyze(cv),
+      new Promise((r) => setTimeout(() => r({ ok: false, reason: 'slow' }), 20000)),
+    ]);
+  } catch { res = { ok: false, reason: 'noface' }; }
+  if (res.reason === 'slow') {
+    analyzing = false;
+    clearStill(cv);
+    status.textContent = 'この端末では読み取りに時間がかかっています。下の「写真をやめて、質問で答える」から進めてください。';
+    return;
+  }
   if (token !== analyzeToken || state.screen !== 'camera') { analyzing = false; clearStill(cv); return; }
   if (!res.ok) {
     analyzing = false;

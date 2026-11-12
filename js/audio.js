@@ -47,7 +47,7 @@ export function initAudio(on = true) {
   document.addEventListener('pointerdown', () => { if (ctx && enabled && ctx.state !== 'running' && !document.hidden) ctx.resume(); }, true);
   window.addEventListener('blur', () => { if (document.hidden || !document.hasFocus()) setTimeout(() => { if (document.hidden) pause(); }, 300); });
   // 先に読んでおく
-  ['bgm/main.mp3', 'bgm/kekka.mp3'].forEach((p) => load(p).catch(() => {}));
+  load('bgm/main.mp3').catch(() => {});   // 結果のBGMは、使う直前に読む（撮影中のメモリを減らすため）
 }
 
 export function setEnabled(on) {
